@@ -4,19 +4,27 @@ from django.http import HttpResponse
 # Create your views here.
 
 def home(request):
-    my_list = ['первый элемент', 'второй элемент', 'третий элемент', "3"]  # Список
+    # names = ["Иван", "Мария", "Алексей"]
+    names = []
+    is_logged_in = True
+    user_age = 25
 
-    return render(request, 'index.html', {
-        'my_list': my_list,
-    })
+    return render(
+        request,
+        "index.html",
+        {
+            "names": names,
+            "is_logged_in": is_logged_in,
+            "user_age": user_age,
+        },
+    )
 
-def hello(request, name):
-    return HttpResponse(f"Привет, {name}")
+def hello(request):
+    return render(request, "hello.html")
 
 
 def number(request, num):
     return HttpResponse(f"{num * 2}")
-
 
 
 def hello_slug(request, slug):  # <-- добавляем новый маршрут

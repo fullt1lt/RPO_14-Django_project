@@ -1,32 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<style>
-    div {
-        border: 2px solid red;
-    }
-    body {
-        background-color: rgb(0, 0, 0);
-        color: white;
-    }
-    li {
-        list-style: none;
-        border: 1px solid red;
-        padding: 5px;
-        margin-top: 5px;
-    }
-</style>
-<body>
-    <h1>Это главная страница!!!</h1>
-    <ul>
-        {% for item in my_list %}
-            <li>{{item}}</li>
-        {% endfor %}
-    </ul>
+{% extends "my_app/base.html" %}
 
-</body>
-</html>
+{%block content%}
+<h1>Добро пожаловать!</h1>
+
+{% if is_logged_in %}
+  <p style="color: green;">Вы вошли в систему.</p>
+{% else %}
+  <p style="color: red;">Пожалуйста, авторизуйтесь.</p>
+{% endif %}
+
+{% if user_age < 18 %}
+  <p>Вам нет 18 лет.</p>
+{% elif user_age < 60 %}
+  <p>Вы взрослый пользователь.</p>
+{% else %}
+  <p>Вы пожилой пользователь.</p>
+{% endif %}
+
+<h2>Список пользователей:</h2>
+<ul>
+  {% for name in names %}
+    <li>{{ name }}</li>
+  {% endfor %}
+</ul>
+{%endblock %}
