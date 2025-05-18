@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    div {
+        border: 2px solid red;
+    }
+    body {
+        background-color: rgb(0, 0, 0);
+        color: white;
+    }
+    li {
+        list-style: none;
+        border: 1px solid red;
+        padding: 5px;
+        margin-top: 5px;
+    }
+</style>
+<body>
+    <h1>Это главная страница!!!</h1>
+    <ul>
+        {% for item in my_list %}
+            <li>{{item}}</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>
