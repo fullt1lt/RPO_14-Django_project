@@ -4,8 +4,7 @@ from django.http import HttpResponse
 # Create your views here.
 
 def home(request):
-    # names = ["Иван", "Мария", "Алексей"]
-    names = []
+    names = ["Иван", "Мария", "Алексей"]
     is_logged_in = True
     user_age = 25
 
