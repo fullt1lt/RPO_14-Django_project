@@ -1,0 +1,46 @@
+{% extends "my_app/base.html" %}
+{% load static %}
+{%block content%}
+<h2>{{title}}</h2>
+{%for prod in products%}
+<p>{{prod.name}} - {{prod.price}} крон</p>
+{%if prod.photo %}
+<img src="{{ prod.photo.url }}" alt="{{ prod.name }}" class="img-thumbnail" style="width: 100px; height: 100px;">
+{%endif%}
+<p>{{prod.category.name}}<p/>
+<a href="{% url 'products_details_page' prod.pk %}">Подробнее</a>
+<a href="{% url 'products_update_page' prod.pk %}">Обновить</a>
+<form action="{% url 'products_delete_page' prod.pk %}" method="post">
+{% csrf_token %}
+<input type="submit" value="Удалить">
+</form>
+{%endfor%}
+
+<h2>{{title2}}</h2>
+
+{% if is_paginated %}
+  <div class="pagination">
+    {% if page_obj.has_previous %}
+      <a href="?page=1">Первая</a>
+      <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
+    {% endif %}
+
+     {% for page_num in paginator.page_range %}
+      {% if page_num == page_obj.number %}
+        <strong>{{ page_num }}</strong>
+      {% else %}
+        <a href="?page={{ page_num }}">{{ page_num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}">Вперёд</a>
+      <a href="?page={{ page_obj.paginator.num_pages }}">Последняя</a>
+    {% endif %}
+  </div>
+{% endif %}
+{% for cat in category %}
+    <p>{{cat.name}}</p>
+{% endfor %}
+
+{%endblock %}

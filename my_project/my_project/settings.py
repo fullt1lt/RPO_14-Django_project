@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -115,11 +116,20 @@ USE_I18N = True
 
 USE_TZ = True
 
+LOGIN_URL = "/login/"
+
+
+# AUTH_USER_MODEL = "my_app.User"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# media files
+
+MEDIA_URL = "/media/"  # URL-адрес, по которому будут доступны медиафайлы
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Путь, куда файлы сохраняются
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

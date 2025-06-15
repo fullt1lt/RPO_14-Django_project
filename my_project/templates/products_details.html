@@ -1,0 +1,12 @@
+{% extends "my_app/base.html" %}
+{% load static %}
+{%block content%}
+<ul>
+<li>{{product.name}}</li>
+<li>{{product.price}} кроны</li>
+{%if product.photo%}
+<img src="{{ product.photo.url }}" alt="{{ product.name }}" class="img-thumbnail" style="width: 100px; height: 100px;">
+{%endif%}
+</ul>
+
+{%endblock%}

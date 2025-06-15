@@ -6,8 +6,16 @@
 
 {% if is_logged_in %}
   <p style="color: green;">Вы вошли в систему.</p>
+  {{user}}
+  <form action="logout/" method="post" class="form_logout">
+    {% csrf_token %}
+    <button type="submit">Выйти</button>
+  </form>
+  
 {% else %}
   <p style="color: red;">Пожалуйста, авторизуйтесь.</p>
+  <a href="{% url 'login_page' %}">Войти</a>
+  <a href="{% url 'register_page' %}">Зарегистрироваться</a>
 {% endif %}
 
 {% if user_age < 18 %}
@@ -21,10 +29,17 @@
 <h2>Список пользователей:</h2>
 <ul>
   <p>
-    {{names|length}}
+    {{products|length}}
   </p>
-  {% for name in names %}
-    <li>{{ name|lower }}</li>
+  {% for product in products %}
+    <li>
+      {{product.name|upper }}
+      {{product.price|floatformat:2}}
+      {{product.descriotions|truncatewords:10}}
+      {%if product.photo %}
+        <img src="{{ product.photo.url }}" alt="" class="img-thumbnail" style="width: 100px; height: 100px;">
+      {%endif%}
+    </li>
   {% endfor %}
 </ul>
 {%endblock %}

@@ -4,3 +4,12 @@ body {
     color: #333;
     margin: 0;
 }
+
+.form_contacts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 1px solid red;
+}
