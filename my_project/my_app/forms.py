@@ -2,6 +2,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from .models import Product
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import User
+
 
 class FormContact(forms.Form):
     name = forms.CharField(label="Name", max_length=20)
@@ -53,3 +55,27 @@ class LoginForm(forms.Form):
             if self.user is None:
                 raise forms.ValidationError("Неверный логин или пароль")
         return cleaned_data
+
+class UserCreateForm(forms.ModelForm):
+    password1 = forms.CharField(widget=forms.PasswordInput, label="Пароль")
+    password2 = forms.CharField(widget=forms.PasswordInput, label="Повторите пароль")
+
+    class Meta:
+        model = User
+        fields = ["username", "password1", "password2", "email"]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get("password1")
+        password2 = cleaned_data.get("password2")
+
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Пароли не совпадают")
+        return cleaned_data
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data["password1"])
+        if commit:
+            user.save()
+        return user

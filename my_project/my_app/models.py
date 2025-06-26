@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Category(models.Model):
     name = models.CharField(max_length=100)
 
@@ -17,6 +18,13 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+class Purchase(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    purchased_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product.name} - {self.purchased_at} шт."
 
 
 class Order(models.Model):

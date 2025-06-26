@@ -3,4 +3,11 @@
 {%block content%}
 <h2>Пример страницы</h2>
 <p>Это пример страницы, которая может использоваться для демонстрации различных возможностей Django.</p>
+<p>НАш цвет - {{color}}</p>
+<form method="post">
+    {% csrf_token %}
+    <label for="color">Выберите цвет:</label>
+    <input type="text" id="color" name="color" value="{{ color }}">
+    <button type="submit">Отправить</button>
+</form>
 {%endblock %}

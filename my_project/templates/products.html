@@ -1,6 +1,7 @@
 {% extends "my_app/base.html" %}
 {% load static %}
 {%block content%}
+<h1>{{date}}</h1>
 <h2>{{title}}</h2>
 {%for prod in products%}
 <p>{{prod.name}} - {{prod.price}} крон</p>
@@ -10,14 +11,21 @@
 <p>{{prod.category.name}}<p/>
 <a href="{% url 'products_details_page' prod.pk %}">Подробнее</a>
 <a href="{% url 'products_update_page' prod.pk %}">Обновить</a>
+
 <form action="{% url 'products_delete_page' prod.pk %}" method="post">
 {% csrf_token %}
 <input type="submit" value="Удалить">
 </form>
+
+<form method="post" style="display:inline;">
+  {% csrf_token %}
+  <input type="hidden" name="product_id" value="{{ prod.id }}">
+  <button type="submit">Добавить в корзину</button>
+</form>
+
 {%endfor%}
 
 <h2>{{title2}}</h2>
-
 {% if is_paginated %}
   <div class="pagination">
     {% if page_obj.has_previous %}
@@ -42,5 +50,27 @@
 {% for cat in category %}
     <p>{{cat.name}}</p>
 {% endfor %}
+
+<H1>Корзина!!!!!</H1>
+{% if messages %}
+
+{% for mes in  messages %}
+<div>
+  {{ mes }}
+</div>
+{% endfor %}
+
+{% endif %}
+{% for prod_cart  in product_cart %}
+    <ul>
+      <li>{{prod_cart.id}}</li>
+      <li>{{prod_cart.name}}</li>
+      <li>{{prod_cart.price}}</li>
+    </ul>
+{% endfor %}
+  
+
+  
+  
 
 {%endblock %}

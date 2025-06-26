@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Product, Category
-from .forms import FormContact, ProductForm, LoginForm
+from .forms import FormContact, ProductForm, UserCreateForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -12,9 +12,19 @@ from django.views.generic import (
     DetailView,
     CreateView,
     UpdateView,
-    DeleteView,
+    DeleteView
 )
+from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
+from django.contrib.auth.models import User
+from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .permissions import IsAdminRequired
+
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from datetime import datetime
+from django.contrib import messages 
 
 def home(request):
     is_logged_in = False
@@ -38,28 +48,59 @@ def hello(request):
         return HttpResponse(f"ПРивет {name}")
     return render(request, "hello.html")
 
-class ExampleViews(View):
-    http_method_names = ["get", "post"]  # Ограничиваем методы только GET и POST
 
-    def get(self, request):
-        return render(request, "example.html")
+class ExampleViews(TemplateView):
+    template_name = "example.html"
+    http_method_names = ["get", "post"]
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        color = self.request.COOKIES.get("color", "Белый")
+        context["color"] = color
+        return context
+
+    def post(self, request, *args, **kwargs):
+        color = request.POST.get("color")
+        response = redirect(request.path)
+        if color:
+            response.set_cookie(key="color", value=color, max_age=3600)
+        return response
+
 
 class AboutViews(TemplateView):
     template_name = "about.html"
     extra_context = {"title": "О нас"}
 
-class ProductsViews(ListView):
+# @method_decorator(cache_page(1), name='dispatch')
+class ProductsViews(LoginRequiredMixin, ListView):
     template_name = "products.html"
     extra_context = {"title": "Продукты :))))))"}
     model = Product
-    paginate_by = 4
+    paginate_by = 5
     context_object_name = "products"
 
     def get_context_data(self, **kwargs):
         context =  super().get_context_data(**kwargs)
         context["title2"] = "СИла чисел)))"
         context["category"] = Category.objects.all()
+        context["date"] = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        product_id = self.request.session.get("product_id", [])
+        try:
+            context["product_cart"] = Product.objects.filter(id__in=product_id)
+        except Product.DoesNotExist:
+            context["product_cart"] = []
         return context
+
+    def post(self, request, *args, **kwargs):
+        product_id = request.POST.get("product_id")
+        if product_id:
+            carts_id = self.request.session.get("product_id", [])
+            if product_id not in carts_id:
+                carts_id.append(product_id)
+                messages.success(request, "Товар добавлен в корзину!")
+            messages.error(request, "Товар уже в корзине!")
+            self.request.session["product_id"] = carts_id
+        return redirect(request.path)
 
 
 class ProductsDetailsViews(DetailView):
@@ -67,7 +108,8 @@ class ProductsDetailsViews(DetailView):
     model = Product
     context_object_name = "product"
 
-class CreateProductViews(CreateView):
+
+class CreateProductViews(IsAdminRequired,CreateView):
     template_name = "product_form.html"
     model = Product
     form_class = ProductForm
@@ -77,6 +119,7 @@ class CreateProductViews(CreateView):
         context = super().get_context_data(**kwargs)
         context["title"] = "Добавить новый товар!!!!!"
         return context
+
 
 class ProductsUpdateView(UpdateView):
     template_name = "product_form.html"
@@ -109,42 +152,14 @@ def contact(request):
     return render(request, 'contacts.html', {"form": form})
 
 
-# @login_required
-# def products_create(request):
-#     if request.method == "POST":
-#         category = Category.objects.get(id=1)
-#         form = ProductForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             product = form.save(commit=False)
-#             product.category = category
-#             product.price += 100
-#             form.save()
-#             return redirect("home_page")
-#     else:
-#         form = ProductForm(initial={"price": 100, "name": "Без названия"})
-#     return render(request, "product_form.html", {"form": form})
+class RegicterView(CreateView):
+    template_name = "register.html"
+    form_class = UserCreateForm
+    model = User
+    success_url = reverse_lazy("home_page")
 
 
-def regiester(request):
-    if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("home_page")
-    else:
-        form = UserCreationForm()
-    return render(request, "register.html", {"form": form})
-
-def login_views(request):
-    if request.method == "POST":
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            login(request, form.user)  # сохраняем пользователя в сессии
-            return redirect("home_page")  # редирект после логина
-    else:
-        form = LoginForm()
-    return render(request, "login.html", {"form": form})
-
-def logout_views(request):
-    logout(request=request)
-    return redirect("home_page")
+class MyLoginViews(LoginView):
+    template_name = "login.html"
+    next_page = reverse_lazy("home_page")
+    redirect_authenticated_user = True
